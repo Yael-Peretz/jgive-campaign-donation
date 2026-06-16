@@ -115,4 +115,5 @@ following architecture:
 ## AI usage
 
 Built with Claude Code (Sonnet 4.6) end-to-end — planning, implementation, and debugging. The full
-transcript is included with this submission alongside this README.
+transcript is in this repo: [`TRANSCRIPT.md`](TRANSCRIPT.md) (readable) and
+[`transcript.jsonl`](transcript.jsonl) (raw Claude Code session log).
