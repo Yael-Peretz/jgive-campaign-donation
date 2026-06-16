@@ -1,0 +1,20 @@
+# Render Blueprint — see https://render.com/docs/blueprint-spec
+#
+# Deploys straight from the repo's existing Dockerfile. No persistent disk:
+# the free instance type's filesystem is ephemeral by design (Render docs:
+# disks require a paid plan), so SQLite resets on every restart/redeploy.
+# bin/docker-entrypoint runs db:prepare + db:seed on every boot to make that
+# a non-issue — the app always comes up populated, never blank.
+services:
+  - type: web
+    name: jgive-assignment
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /up
+    envVars:
+      - key: RAILS_MASTER_KEY
+        sync: false # paste the contents of config/master.key in the Render dashboard
+      - key: RAILS_ENV
+        value: production

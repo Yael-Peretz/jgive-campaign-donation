@@ -3,6 +3,11 @@
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
+  # Render's free instance type has an ephemeral filesystem (no persistent disk),
+  # so SQLite resets on every restart/redeploy. Reseeding on every boot means the
+  # app is never blank. db/seeds.rb is written idempotently, so this is also safe
+  # if a persistent disk gets attached later.
+  ./bin/rails db:seed
 fi
 
 exec "${@}"
