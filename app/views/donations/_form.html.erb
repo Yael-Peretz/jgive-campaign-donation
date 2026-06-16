@@ -1,0 +1,87 @@
+<%
+presets = [ 100, 250, 500, 1000 ]
+is_custom_amount = donation.amount.present? && presets.exclude?(donation.amount.to_i)
+%>
+
+<div id="donation-form" class="rounded-2xl border border-gray-100 bg-white p-6 shadow-md">
+  <h3 class="text-lg font-semibold text-gray-900">Make a donation</h3>
+
+  <% if donation.errors.any? %>
+    <div class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+      <ul class="list-inside list-disc">
+        <% donation.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: donation, url: campaign_donations_path(campaign), class: "mt-4 space-y-5", data: { controller: "amount" } do |f| %>
+    <div>
+      <span class="mb-2 block text-sm font-medium text-gray-700">Amount (₪)</span>
+
+      <div class="grid grid-cols-4 gap-2">
+        <% presets.each do |preset| %>
+          <label class="cursor-pointer">
+            <%= f.radio_button :amount, preset,
+                  checked: !is_custom_amount && (donation.amount.present? ? donation.amount.to_i == preset : preset == 250),
+                  data: { amount_target: "preset", action: "change->amount#selectPreset" },
+                  class: "peer sr-only" %>
+            <span class="flex items-center justify-center rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-700">
+              ₪<%= preset %>
+            </span>
+          </label>
+        <% end %>
+      </div>
+
+      <%= f.number_field :amount,
+            min: 1, step: 1, placeholder: "Other amount",
+            value: (is_custom_amount ? donation.amount.to_i : nil),
+            disabled: !is_custom_amount,
+            data: { amount_target: "custom", action: "focus->amount#selectCustom" },
+            class: "mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-600 focus:ring-blue-600 disabled:bg-gray-50" %>
+    </div>
+
+    <div>
+      <span class="mb-2 block text-sm font-medium text-gray-700">Frequency</span>
+      <div class="grid grid-cols-2 gap-2">
+        <% Donation.frequencies.each_key do |frequency| %>
+          <label class="cursor-pointer">
+            <%= f.radio_button :frequency, frequency, class: "peer sr-only" %>
+            <span class="flex items-center justify-center rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-700">
+              <%= frequency == "one_time" ? "One-time" : frequency.titleize %>
+            </span>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <div>
+      <span class="mb-2 block text-sm font-medium text-gray-700">Show my name as</span>
+      <div class="space-y-1 text-sm text-gray-700">
+        <% Donation.display_preferences.each_key do |preference| %>
+          <label class="flex items-center gap-2">
+            <%= f.radio_button :display_preference, preference %>
+            <%= preference.titleize %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :donor_name, "Your name", class: "mb-1 block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :donor_name,
+            class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-600 focus:ring-blue-600" %>
+      <p class="mt-1 text-xs text-gray-400">Required unless you donate anonymously.</p>
+    </div>
+
+    <div>
+      <%= f.label :dedication_message, "Dedication message (optional)", class: "mb-1 block text-sm font-medium text-gray-700" %>
+      <%= f.text_area :dedication_message, rows: 3,
+            class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-600 focus:ring-blue-600" %>
+    </div>
+
+    <%= f.submit "Donate now",
+          class: "w-full cursor-pointer rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700" %>
+  <% end %>
+</div>

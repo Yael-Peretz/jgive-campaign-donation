@@ -1,4 +1,73 @@
-<div>
-  <h1 class="font-bold text-4xl">Campaigns#show</h1>
-  <p>Find me in app/views/campaigns/show.html.erb</p>
+<% content_for :title, @campaign.title %>
+
+<div class="py-8">
+  <div class="overflow-hidden rounded-2xl">
+    <%= image_tag @campaign.cover_image_url, class: "h-64 w-full object-cover sm:h-80" %>
+  </div>
+
+  <div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3">
+    <div class="lg:col-span-2" data-controller="tabs"
+         data-tabs-active-class="border-blue-600 text-blue-600"
+         data-tabs-inactive-class="border-transparent text-gray-500 hover:text-gray-700">
+      <h1 class="text-3xl font-bold text-gray-900"><%= @campaign.title %></h1>
+
+      <div class="mt-6 flex gap-6 border-b border-gray-200" role="tablist">
+        <button type="button" role="tab" aria-selected="true" data-name="about"
+                data-tabs-target="tab" data-action="click->tabs#select" data-tabs-name-param="about"
+                class="cursor-pointer border-b-2 border-blue-600 px-1 py-3 text-sm font-medium text-blue-600">
+          About
+        </button>
+        <button type="button" role="tab" aria-selected="false" data-name="story"
+                data-tabs-target="tab" data-action="click->tabs#select" data-tabs-name-param="story"
+                class="cursor-pointer border-b-2 border-transparent px-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700">
+          Story
+        </button>
+        <button type="button" role="tab" aria-selected="false" data-name="donors"
+                data-tabs-target="tab" data-action="click->tabs#select" data-tabs-name-param="donors"
+                class="cursor-pointer border-b-2 border-transparent px-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700">
+          Donors (<span id="donors-count"><%= @campaign.donations_count %></span>)
+        </button>
+      </div>
+
+      <div data-tabs-target="panel" data-name="about" class="mt-6 text-lg text-gray-700">
+        <%= @campaign.summary %>
+      </div>
+
+      <div data-tabs-target="panel" data-name="story" class="mt-6 hidden text-gray-700">
+        <%= simple_format(@campaign.story) %>
+      </div>
+
+      <div data-tabs-target="panel" data-name="donors" class="mt-6 hidden">
+        <p id="donors-empty" class="text-sm text-gray-500 <%= "hidden" if @recent_donations.any? %>">
+          Be the first to donate!
+        </p>
+        <div id="donor-list">
+          <%= render @recent_donations %>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-1">
+      <div class="sticky top-8 space-y-4" data-controller="modal">
+        <%= render "progress_bar", campaign: @campaign %>
+
+        <button type="button" data-action="click->modal#open"
+                class="w-full cursor-pointer rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700">
+          Donate Now
+        </button>
+
+        <dialog data-modal-target="dialog" data-action="click->modal#closeBackdrop"
+                class="m-auto w-full max-w-md bg-transparent p-0 backdrop:bg-gray-900/50">
+          <div class="relative">
+            <button type="button" data-action="click->modal#close" aria-label="Close"
+                    class="absolute right-4 top-4 z-10 cursor-pointer text-gray-400 hover:text-gray-600">
+              &#10005;
+            </button>
+
+            <%= render "donations/form", campaign: @campaign, donation: @donation %>
+          </div>
+        </dialog>
+      </div>
+    </div>
+  </div>
 </div>

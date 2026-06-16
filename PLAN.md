@@ -55,8 +55,8 @@ plus typical crowdfunding-page conventions; a visual pass against the live page 
   `display_preference:integer` enum (`full_name`/`first_name_only`/`anonymous`, default `full_name`),
   `status:integer` enum (`pending`/`paid`, default `pending`),
   `donor_name:string`, `dedication_message:text` (optional).
-- `donor_name` is always required, even when `display_preference: anonymous` — anonymity controls
-  what's shown publicly, not what's collected internally.
+- `donor_name` is required unless `display_preference: anonymous` — an anonymous donor doesn't
+  have to give a name at all (not just hide it from public display).
 - A `Donation.countable` scope (`pending` + `paid`) is what `Campaign#raised_amount` sums. The
   assignment wants progress to move when a *pending* donation is created (no payment flow exists
   to ever produce a `paid` one yet), so pending counts for now. Isolating that policy in one named
@@ -103,16 +103,23 @@ end
 - Tabs ("About", "Story", "Donors") — small Stimulus `tabs_controller.js` toggling a `hidden`
   class + `aria-selected` on server-rendered panels. No Turbo Frames needed; content is already in
   the DOM, this is pure client-side show/hide.
-- Sticky form — plain CSS `position: sticky; top: …` on the right-column wrapper, no JS.
-- Donation form:
+- Sticky CTA — plain CSS `position: sticky; top: …` on the right-column wrapper holding the
+  progress bar and a "Donate Now" button, no JS for the stickiness itself.
+- Donation form lives in a popup, not always inline — the reference site (per direct visual
+  inspection of `.../donate/amount`) opens the donation form as a modal rather than showing it
+  inline in the sidebar at all times. Implemented with the native `<dialog>` element + a tiny
+  `modal_controller.js` (`showModal()`/`close()`, plus closing on backdrop click) instead of a
+  hand-rolled JS modal — gets focus trapping and Esc-to-close from the browser for free.
   - Amount: preset radios + a separate "other amount" input. A tiny Stimulus
     `amount_controller.js` makes typing into "other" activate it as the selected radio, so exactly
     one `donation[amount]` is ever submitted.
-  - Frequency toggle (one-time/monthly), display-preference radios, donor name, optional
-    dedication textarea, submit.
+  - Frequency toggle (one-time/monthly), display-preference radios, donor name (required unless
+    `display_preference: anonymous`), optional dedication textarea, submit.
 - Checkpoint before closing this phase: eyeball the live reference page against ours for
-  spacing/colors/section order, and note any deliberate deltas in the README's "what I changed and
-  why" section per the brief's own invitation.
+  spacing/colors/section order. Couldn't scrape the reference's actual markup (client-rendered SPA,
+  blocked from simple fetch/curl), so this stayed limited to general crowdfunding-page conventions
+  plus direct user feedback (e.g. the popup form). Worth a manual side-by-side glance before
+  calling the visual pass fully done.
 
 ## Phase 5 — Deployment Strategy & README
 

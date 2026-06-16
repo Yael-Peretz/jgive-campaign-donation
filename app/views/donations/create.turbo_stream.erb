@@ -1,0 +1,9 @@
+<% if @donation.persisted? %>
+  <%= turbo_stream.replace dom_id(@campaign, :progress), partial: "campaigns/progress_bar", locals: { campaign: @campaign } %>
+  <%= turbo_stream.replace "donation-form", partial: "donations/thank_you", locals: { campaign: @campaign, donation: @donation } %>
+  <%= turbo_stream.prepend "donor-list", partial: "donations/donation", locals: { donation: @donation } %>
+  <%= turbo_stream.remove "donors-empty" %>
+  <%= turbo_stream.replace "donors-count" do %><%= @campaign.donations_count %><% end %>
+<% else %>
+  <%= turbo_stream.replace "donation-form", partial: "donations/form", locals: { campaign: @campaign, donation: @donation } %>
+<% end %>

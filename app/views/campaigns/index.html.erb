@@ -1,4 +1,23 @@
-<div>
-  <h1 class="font-bold text-4xl">Campaigns#index</h1>
-  <p>Find me in app/views/campaigns/index.html.erb</p>
+<% content_for :title, "Campaigns" %>
+
+<div class="py-8">
+  <h1 class="text-2xl font-bold text-gray-900">Active Campaigns</h1>
+
+  <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <% @campaigns.each do |campaign| %>
+      <%= link_to campaign_path(campaign),
+            class: "block overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md" do %>
+        <%= image_tag campaign.cover_image_url, class: "h-48 w-full object-cover" %>
+
+        <div class="p-5">
+          <h2 class="text-lg font-semibold text-gray-900"><%= campaign.title %></h2>
+          <p class="mt-1 text-sm text-gray-600"><%= campaign.summary %></p>
+
+          <div class="mt-4">
+            <%= render "campaigns/progress_bar", campaign: campaign %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
 </div>

@@ -1,0 +1,9 @@
+<div id="donation-form" class="rounded-2xl border border-green-200 bg-green-50 p-6 text-center">
+  <h3 class="text-lg font-semibold text-green-800">Thank you for your generosity!</h3>
+  <p class="mt-2 text-sm text-green-700">
+    Your <%= donation.monthly? ? "monthly" : "one-time" %> donation of ₪<%= number_with_delimiter(donation.amount.to_i) %>
+    has been received.
+  </p>
+  <%= link_to "Make another donation", campaign_path(campaign),
+        class: "mt-4 inline-block text-sm font-medium text-blue-600 hover:text-blue-700" %>
+</div>

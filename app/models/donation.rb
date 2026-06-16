@@ -7,7 +7,7 @@ class Donation < ApplicationRecord
   # leaves room for a future :failed/:refunded without touching the `countable` scope below.
   enum :status, { pending: 0, paid: 1 }, default: :pending
 
-  validates :donor_name, presence: true
+  validates :donor_name, presence: true, unless: :anonymous?
   validates :amount, numericality: { greater_than: 0 }
 
   # Pending donations count toward a campaign's progress today since there's no payment flow to
