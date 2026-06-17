@@ -9,89 +9,60 @@ if Campaign.exists?
   return
 end
 
-community_center = Campaign.create!(
-  title: "Help Build a New Community Center",
-  summary: "Building a vibrant new home for youth programs, family events, and community gatherings.",
+orange_garden = Campaign.create!(
+  title: "The Orange Garden",
+  summary: "Help us build the Orange Garden in Israel in memory of Shiri, Ariel, and Kfir Bibas, and all the children of October 7.",
   story: <<~STORY,
-    For over a decade, our neighborhood has shared a single, aging hall for everything from after-school
-    tutoring to holiday meals for seniors. It's no longer enough.
+    From Pain, We Are Building Life
+    A place where children will run again. Where families will heal. Where a nation turns pain into life. The land is ready. Now it's up to us 🧡
 
-    We're raising funds to build a new community center with dedicated space for youth programs, a
-    commercial kitchen for community meals, and a multi-purpose hall for events and celebrations.
+    The municipality of Migdal HaEmek has granted the land and committed to maintaining and protecting the garden. The plans are ready. All that's needed is you — to help transform this soil into a garden of life. Every contribution becomes something real: a tree rooted in the earth, a walking path, a corner of light and inspiration that will remain for generations.
 
-    Every contribution, large or small, brings us closer to a space our whole community can finally call
-    home.
+    A Space for Healing, A Place for Everyone
+    Designed with the principles of Nature Therapy and Zen healing, The Orange Garden is a bridge between memory and the future.
+
+    • The Healing Garden: A specialized horticultural therapy space serving wounded veterans with PTSD and at-risk youth.
+    • The Bibas Fruit Groves: Planting the citrus trees Ariel and Shiri loved most.
+    • The "Water of Life" Stream: A flowing ecological stream inspired by Ariel's love for water.
+    • The Children's Wishing Wall: A place where children can place their prayers and dreams.
+    • Community & Culture: Outdoor classrooms, family picnic areas, and an amphitheater.
+
+    "Every tree we plant is a victory. Every child's laughter in this garden is our resilience."
+
+    We're starting with a goal of ₪5 million to build Phase 1 of the garden. From there, we will continue to Phase 2 to complete the full vision. Every contribution today helps bring the garden to life.
   STORY
-  cover_image_url: "seeds/community_center.svg",
-  goal_amount: 50_000
-)
-
-winter_relief = Campaign.create!(
-  title: "Winter Relief Fund for Families in Need",
-  summary: "Providing warm clothing, heating assistance, and emergency food packages to families this winter.",
-  story: <<~STORY,
-    As temperatures drop, dozens of families in our community are forced to choose between heating their
-    homes and putting food on the table.
-
-    This fund provides emergency heating assistance, warm clothing, and grocery packages to families
-    referred to us by local schools and social workers. Last winter, we helped over 80 families make it
-    through the season safely.
-
-    Your donation goes directly to families who need it most, with no overhead taken out.
-  STORY
-  cover_image_url: "seeds/winter_relief.svg",
-  goal_amount: 20_000
+  cover_image_url: "https://youtu.be/cNy3jf0lptw",
+  goal_amount: 5_000_000
 )
 
 Donation.create!([
   {
-    campaign: community_center, donor_name: "David Levi", amount: 18_000,
-    frequency: :one_time, display_preference: :full_name, status: :paid
-  },
-  {
-    campaign: community_center, donor_name: "Rachel Goldberg", amount: 5_000,
-    frequency: :monthly, display_preference: :full_name, status: :pending,
-    dedication_message: "So proud to support this incredible project!"
-  },
-  {
-    campaign: community_center, donor_name: "Tamar Friedman", amount: 1_200,
-    frequency: :one_time, display_preference: :anonymous, status: :pending
-  },
-  {
-    campaign: community_center, donor_name: "Yossi Mizrahi", amount: 500,
-    frequency: :one_time, display_preference: :first_name_only, status: :pending,
-    dedication_message: "Mazal tov on this wonderful initiative."
-  },
-  {
-    campaign: community_center, donor_name: "Noa Shapiro", amount: 250,
-    frequency: :monthly, display_preference: :full_name, status: :pending
-  },
-  {
-    campaign: community_center, donor_name: "Avi Rosen", amount: 75,
-    frequency: :one_time, display_preference: :anonymous, status: :pending
-  },
-  {
-    campaign: winter_relief, donor_name: "Miriam Katz", amount: 3_000,
+    campaign: orange_garden, donor_name: "Yael Cohen", amount: 1_800,
     frequency: :one_time, display_preference: :full_name, status: :paid,
-    dedication_message: "In honor of my parents, refugees who once needed this kind of help."
+    dedication_message: "In memory of the Bibas family. Am Yisrael Chai."
   },
   {
-    campaign: winter_relief, donor_name: "Eli Bergman", amount: 1_000,
+    campaign: orange_garden, donor_name: "Daniel Smith", amount: 500,
+    frequency: :monthly, display_preference: :full_name, status: :pending,
+    dedication_message: "May this garden bring peace and healing."
+  },
+  {
+    campaign: orange_garden, donor_name: "Anonymous", amount: 3_600,
+    frequency: :one_time, display_preference: :anonymous, status: :paid
+  },
+  {
+    campaign: orange_garden, donor_name: "Michal", amount: 180,
+    frequency: :one_time, display_preference: :first_name_only, status: :paid,
+    dedication_message: "Planting a tree for the future."
+  },
+  {
+    campaign: orange_garden, donor_name: "Omer Levy", amount: 250,
     frequency: :monthly, display_preference: :full_name, status: :pending
   },
   {
-    campaign: winter_relief, donor_name: "Dana Peretz", amount: 360,
-    frequency: :one_time, display_preference: :anonymous, status: :pending,
-    dedication_message: "Stay warm, stay strong."
-  },
-  {
-    campaign: winter_relief, donor_name: "Jonathan Adler", amount: 180,
-    frequency: :one_time, display_preference: :first_name_only, status: :pending
-  },
-  {
-    campaign: winter_relief, donor_name: "Shira Weiss", amount: 50,
-    frequency: :one_time, display_preference: :anonymous, status: :pending
+    campaign: orange_garden, donor_name: "Anonymous", amount: 50,
+    frequency: :one_time, display_preference: :anonymous, status: :paid
   }
 ])
 
-puts "Seeded #{Campaign.count} campaigns and #{Donation.count} donations."
+puts "Seeded #{Campaign.count} campaign(s) and #{Donation.count} donations."

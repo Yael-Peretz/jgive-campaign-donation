@@ -1,87 +1,137 @@
 <%
-presets = [ 100, 250, 500, 1000 ]
-is_custom_amount = donation.amount.present? && presets.exclude?(donation.amount.to_i)
+  presets = [
+    { amount: 180,   label: "Plant a Tree of Life" },
+    { amount: 260,   label: "Plant Two Trees" },
+    { amount: 1_560, label: "Plant 1 Tree & Mark Shiri's Name" },
+    { amount: 2_560, label: "Plant Two Trees & Mark Shiri's Name" },
+    { amount: 1_500, label: "Create a Children's Space" },
+  ]
+  preset_amounts = presets.map { |p| p[:amount] }
+  is_custom = donation.amount.present? && preset_amounts.exclude?(donation.amount.to_i)
+  default_amount = donation.amount.present? ? donation.amount.to_i : 180
 %>
 
-<div id="donation-form" class="rounded-2xl border border-gray-100 bg-white p-6 shadow-md">
-  <h3 class="text-lg font-semibold text-gray-900">Make a donation</h3>
+<div id="donation-form" class="rounded-2xl bg-white shadow-xl overflow-hidden"
+     data-controller="amount">
 
-  <% if donation.errors.any? %>
-    <div class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-      <ul class="list-inside list-disc">
-        <% donation.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
+  <%# Header %>
+  <div class="flex items-center gap-2 bg-gray-50 border-b border-gray-200 px-5 py-3">
+    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+    </svg>
+    <span class="text-sm font-medium text-gray-500">Secure payment</span>
+  </div>
+
+  <div class="p-5">
+    <% if donation.errors.any? %>
+      <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <ul class="list-inside list-disc">
+          <% donation.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: donation, url: campaign_donations_path(campaign), class: "space-y-5" do |f| %>
+
+      <%# Select Amount + currency %>
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-gray-900">Select Amount</h3>
+        <span class="rounded border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-600">ILS ₪</span>
+      </div>
+
+      <%# Frequency toggle %>
+      <div class="flex rounded-lg border border-gray-200 overflow-hidden text-sm font-semibold">
+        <% Donation.frequencies.each_key do |freq| %>
+          <label class="flex-1 cursor-pointer">
+            <%= f.radio_button :frequency, freq, class: "peer sr-only",
+                  checked: (donation.frequency.blank? ? freq == "one_time" : donation.frequency == freq) %>
+            <span class="flex items-center justify-center py-2.5 text-gray-500 peer-checked:bg-purple-50 peer-checked:text-purple-700 peer-checked:font-bold transition-colors">
+              <%= freq == "one_time" ? "One Time" : "Recurring donation" %>
+            </span>
+          </label>
         <% end %>
-      </ul>
-    </div>
-  <% end %>
+      </div>
 
-  <%= form_with model: donation, url: campaign_donations_path(campaign), class: "mt-4 space-y-5", data: { controller: "amount" } do |f| %>
-    <div>
-      <span class="mb-2 block text-sm font-medium text-gray-700">Amount (₪)</span>
-
-      <div class="grid grid-cols-4 gap-2">
+      <%# Preset amount grid %>
+      <div class="grid grid-cols-2 gap-2">
         <% presets.each do |preset| %>
           <label class="cursor-pointer">
-            <%= f.radio_button :amount, preset,
-                  checked: !is_custom_amount && (donation.amount.present? ? donation.amount.to_i == preset : preset == 250),
-                  data: { amount_target: "preset", action: "change->amount#selectPreset" },
+            <%= f.radio_button :amount, preset[:amount],
+                  checked: !is_custom && default_amount == preset[:amount],
+                  data: { amount_target: "preset", action: "change->amount#selectPreset change->amount#updateTotal" },
                   class: "peer sr-only" %>
-            <span class="flex items-center justify-center rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-700">
-              ₪<%= preset %>
+            <span class="flex flex-col items-start rounded-xl border-2 border-gray-200 px-3 py-2.5
+                         peer-checked:border-purple-500 peer-checked:bg-purple-50 transition-colors">
+              <span class="text-base font-bold text-gray-900">₪<%= number_with_delimiter(preset[:amount]) %></span>
+              <span class="text-xs text-gray-500 leading-tight mt-0.5"><%= preset[:label] %></span>
             </span>
           </label>
         <% end %>
+
+        <%# Other (custom) %>
+        <label class="cursor-pointer">
+          <span class="flex flex-col items-start rounded-xl border-2 border-gray-200 px-3 py-2.5
+                       <%= is_custom ? "border-purple-500 bg-purple-50" : "" %> transition-colors">
+            <span class="text-base font-bold text-gray-900">Other</span>
+            <%= f.number_field :amount,
+                  min: 1, step: 1, placeholder: "₪ amount",
+                  value: (is_custom ? donation.amount.to_i : nil),
+                  disabled: !is_custom,
+                  data: { amount_target: "custom", action: "focus->amount#selectCustom input->amount#updateTotal" },
+                  class: "mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-purple-500 focus:outline-none disabled:opacity-0" %>
+          </span>
+        </label>
       </div>
 
-      <%= f.number_field :amount,
-            min: 1, step: 1, placeholder: "Other amount",
-            value: (is_custom_amount ? donation.amount.to_i : nil),
-            disabled: !is_custom_amount,
-            data: { amount_target: "custom", action: "focus->amount#selectCustom" },
-            class: "mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-600 focus:ring-blue-600 disabled:bg-gray-50" %>
-    </div>
+      <%# Donor name %>
+      <div>
+        <%= f.label :donor_name, "Your name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :donor_name,
+              placeholder: "Full name",
+              class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none" %>
+      </div>
 
-    <div>
-      <span class="mb-2 block text-sm font-medium text-gray-700">Frequency</span>
-      <div class="grid grid-cols-2 gap-2">
-        <% Donation.frequencies.each_key do |frequency| %>
-          <label class="cursor-pointer">
-            <%= f.radio_button :frequency, frequency, class: "peer sr-only" %>
-            <span class="flex items-center justify-center rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-700">
-              <%= frequency == "one_time" ? "One-time" : frequency.titleize %>
-            </span>
+      <%# Display preference — compact %>
+      <div class="flex flex-wrap gap-3 text-sm">
+        <% Donation.display_preferences.each_key do |pref| %>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <%= f.radio_button :display_preference, pref,
+                  checked: (donation.display_preference.blank? ? pref == "full_name" : donation.display_preference == pref),
+                  class: "accent-purple-600" %>
+            <span class="text-gray-600"><%= pref.humanize %></span>
           </label>
         <% end %>
       </div>
-    </div>
 
-    <div>
-      <span class="mb-2 block text-sm font-medium text-gray-700">Show my name as</span>
-      <div class="space-y-1 text-sm text-gray-700">
-        <% Donation.display_preferences.each_key do |preference| %>
-          <label class="flex items-center gap-2">
-            <%= f.radio_button :display_preference, preference %>
-            <%= preference.titleize %>
-          </label>
-        <% end %>
+      <%# Write a comment toggle %>
+      <div>
+        <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-600 select-none">
+          <input type="checkbox" class="accent-purple-600 w-4 h-4"
+                 data-action="change->amount#toggleComment">
+          Write a comment
+        </label>
+        <div data-amount-target="commentField" class="hidden mt-2">
+          <%= f.text_area :dedication_message, rows: 3, placeholder: "Leave a dedication or message…",
+                class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none" %>
+        </div>
       </div>
-    </div>
 
-    <div>
-      <%= f.label :donor_name, "Your name", class: "mb-1 block text-sm font-medium text-gray-700" %>
-      <%= f.text_field :donor_name,
-            class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-600 focus:ring-blue-600" %>
-      <p class="mt-1 text-xs text-gray-400">Required unless you donate anonymously.</p>
-    </div>
+      <%# Total to pay + submit %>
+      <div class="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
+        <span class="text-sm text-gray-600">
+          Total to pay:
+          <strong class="text-gray-900" data-amount-target="total">
+            ₪<%= number_with_delimiter(default_amount) %>
+          </strong>
+        </span>
+        <%= f.submit "Continue →",
+              class: "cursor-pointer rounded-lg px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90",
+              style: "background: #00a651;" %>
+      </div>
 
-    <div>
-      <%= f.label :dedication_message, "Dedication message (optional)", class: "mb-1 block text-sm font-medium text-gray-700" %>
-      <%= f.text_area :dedication_message, rows: 3,
-            class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-600 focus:ring-blue-600" %>
-    </div>
-
-    <%= f.submit "Donate now",
-          class: "w-full cursor-pointer rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700" %>
-  <% end %>
+    <% end %>
+  </div>
 </div>

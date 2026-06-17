@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+/* Story content typography */
+.story-content p {
+  margin-bottom: 1.25rem;
+  line-height: 1.8;
+  color: #374151;
+}
+
+.story-content p:first-child {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+/* Hide scrollbar for tab nav on mobile */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

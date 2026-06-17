@@ -1,36 +1,39 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Jgive Assignment" %></title>
+    <title><%= content_for(:title) || "Jgive" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Jgive Assignment">
+    <meta name="application-name" content="Jgive">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-50">
+  <body class="bg-white text-gray-900 antialiased">
     <header class="border-b border-gray-200 bg-white">
-      <div class="mx-auto max-w-6xl px-4 py-4 sm:px-6">
-        <%= link_to "Jgive", root_path, class: "text-xl font-bold text-blue-600" %>
+      <div class="mx-auto max-w-6xl px-4 sm:px-6 flex items-center justify-between h-14">
+        <%= link_to root_path, class: "flex items-center gap-1" do %>
+          <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span class="text-xl font-bold text-gray-800">Jgive</span>
+        <% end %>
       </div>
     </header>
 
-    <main class="mx-auto max-w-6xl px-4 sm:px-6">
+    <%= yield :hero %>
+
+    <main class="mx-auto max-w-6xl px-4 sm:px-6 pb-16">
       <%= yield %>
     </main>
   </body>
